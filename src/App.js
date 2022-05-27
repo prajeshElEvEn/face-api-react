@@ -1,23 +1,94 @@
-import logo from './logo.svg';
 import './App.css';
+import * as faceapi from '@vladmandic/face-api'
+import { useEffect, useRef, useState } from 'react';
 
 function App() {
+  const videoRef = useRef();
+  const canvasRef = useRef();
+
+  const videoHeight = 680;
+  const videoWidth = 840;
+
+  const handleVideo = () => {
+    setInterval(async () => {
+      const detections = await faceapi
+        .detectAllFaces(
+          videoRef.current,
+          new faceapi.SsdMobilenetv1Options()
+        )
+        .withFaceLandmarks()
+        .withFaceExpressions()
+
+      canvasRef.current.innerHTML = faceapi.createCanvasFromMedia(videoRef.current)
+      faceapi.matchDimensions(canvasRef.current, {
+        width: videoWidth,
+        height: videoHeight
+      })
+      const resizedDetections = faceapi.resizeResults(detections, {
+        width: videoWidth,
+        height: videoHeight
+      })
+      faceapi.draw.drawDetections(canvasRef.current, resizedDetections)
+      faceapi.draw.drawFaceExpressions(canvasRef.current, resizedDetections)
+      // faceapi.draw.drawFaceLandmarks(canvasRef.current, resizedDetections)
+    }, 100)
+  }
+
+  useEffect(() => {
+    const loadModels = async () => {
+      Promise.all([
+        await faceapi.nets.ssdMobilenetv1.load('/models'),
+        await faceapi.nets.ageGenderNet.load('/models'),
+        await faceapi.nets.faceLandmark68Net.load('/models'),
+        await faceapi.nets.faceRecognitionNet.load('/models'),
+        await faceapi.nets.faceExpressionNet.load('/models')
+      ])
+        .then()
+        .catch((err) => {
+          console.log(err);
+        })
+    }
+    loadModels()
+  }, [])
+
+  const triggerVideo = () => {
+    if (videoRef.current.paused) {
+      playVideo()
+    } else {
+      videoRef.current.pause()
+    }
+  }
+
+  const quitVideo = () => {
+    window.location.reload()
+  }
+
+  const playVideo = async () => {
+    const video = videoRef.current
+    await navigator.mediaDevices.getUserMedia(
+      {
+        video: {
+          facingMode: 'user'
+        }
+      }
+    )
+      .then(stream => {
+        video.srcObject = stream
+        video.play()
+        handleVideo()
+      })
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <video ref={videoRef} height={videoHeight} width={videoWidth} />
+      <canvas ref={canvasRef} height={videoHeight} width={videoWidth} />
+      <button onClick={() => {
+        triggerVideo()
+      }}>Start</button>
+      <button onClick={() => {
+        quitVideo()
+      }}>Quit</button>
     </div>
   );
 }
