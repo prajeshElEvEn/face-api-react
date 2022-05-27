@@ -80,15 +80,19 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <video ref={videoRef} height={videoHeight} width={videoWidth} />
-      <canvas ref={canvasRef} height={videoHeight} width={videoWidth} />
-      <button onClick={() => {
-        triggerVideo()
-      }}>Start</button>
-      <button onClick={() => {
-        quitVideo()
-      }}>Quit</button>
+    <div className="container">
+      <div className='App'>
+        <video ref={videoRef} height={videoHeight} width={videoWidth} />
+        <canvas ref={canvasRef} height={videoHeight} width={videoWidth} />
+      </div>
+      <div className='btns'>
+        <button onClick={() => {
+          triggerVideo()
+        }}>Start</button>
+        <button onClick={() => {
+          quitVideo()
+        }}>Quit</button>
+      </div>
     </div>
   );
 }
