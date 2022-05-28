@@ -21,12 +21,12 @@ function App() {
 
       canvasRef.current.innerHTML = faceapi.createCanvasFromMedia(videoRef.current)
       faceapi.matchDimensions(canvasRef.current, {
-        width: videoWidth,
-        height: videoHeight
+        width: videoRef.current.width,
+        height: videoRef.current.height
       })
       const resizedDetections = faceapi.resizeResults(detections, {
-        width: videoWidth,
-        height: videoHeight
+        width: videoRef.current.width,
+        height: videoRef.current.height
       })
       faceapi.draw.drawDetections(canvasRef.current, resizedDetections)
       faceapi.draw.drawFaceExpressions(canvasRef.current, resizedDetections)
