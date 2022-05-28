@@ -30,6 +30,13 @@ function App() {
       })
       faceapi.draw.drawDetections(canvasRef.current, resizedDetections)
       faceapi.draw.drawFaceExpressions(canvasRef.current, resizedDetections)
+      resizedDetections.forEach(detection => {
+        const box = detection.detection.box
+        const drawBox = new faceapi.draw.DrawBox(box, { label: 'Face' })
+        drawBox.draw(canvasRef.current)
+      })
+
+      // new faceapi.draw.DrawBox(canvasRef.current, { label: 'Face' })
       // faceapi.draw.drawFaceLandmarks(canvasRef.current, resizedDetections)
     }, 100)
   }
